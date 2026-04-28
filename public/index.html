@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나만의 유전 개념 비유 만들기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --accent1: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #f78166;
+    --accent4: #d2a8ff;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --chrom: #f78166;
+    --dna: #58a6ff;
+    --gene: #3fb950;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(88,166,255,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 80%, rgba(63,185,80,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 60% 10%, rgba(210,168,255,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(88,166,255,0.12);
+    border: 1px solid rgba(88,166,255,0.3);
+    color: var(--accent1);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  header h1 {
+    font-size: clamp(26px, 5vw, 42px);
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #e6edf3 30%, #58a6ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    color: var(--text-muted);
+    font-size: 15px;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* Concept cards */
+  .concepts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .concept-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 14px;
+  }
+
+  .concept-card.chrom::before { background: radial-gradient(circle at top left, rgba(247,129,102,0.15), transparent 60%); }
+  .concept-card.dna::before   { background: radial-gradient(circle at top left, rgba(88,166,255,0.15), transparent 60%); }
+  .concept-card.gene::before  { background: radial-gradient(circle at top left, rgba(63,185,80,0.15), transparent 60%); }
+
+  .concept-card:hover::before,
+  .concept-card.active::before { opacity: 1; }
+
+  .concept-card:hover,
+  .concept-card.active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+
+  .concept-card.chrom { border-color: rgba(247,129,102,0.4); }
+  .concept-card.dna   { border-color: rgba(88,166,255,0.4); }
+  .concept-card.gene  { border-color: rgba(63,185,80,0.4); }
+
+  .concept-card.active.chrom { border-color: var(--chrom); box-shadow: 0 0 0 2px rgba(247,129,102,0.2); }
+  .concept-card.active.dna   { border-color: var(--dna);   box-shadow: 0 0 0 2px rgba(88,166,255,0.2); }
+  .concept-card.active.gene  { border-color: var(--gene);  box-shadow: 0 0 0 2px rgba(63,185,80,0.2); }
+
+  .concept-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .concept-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .concept-card.chrom .concept-title { color: var(--chrom); }
+  .concept-card.dna   .concept-title { color: var(--dna); }
+  .concept-card.gene  .concept-title { color: var(--gene); }
+
+  .concept-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Input section */
+  .input-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .input-section h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .input-section .hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .selected-concept-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .selected-concept-label.chrom { background: rgba(247,129,102,0.15); color: var(--chrom); }
+  .selected-concept-label.dna   { background: rgba(88,166,255,0.15);  color: var(--dna); }
+  .selected-concept-label.gene  { background: rgba(63,185,80,0.15);   color: var(--gene); }
+
+  /* Example chips */
+  .examples-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .example-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 13px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .example-chip:hover {
+    background: rgba(88,166,255,0.1);
+    border-color: var(--accent1);
+    color: var(--accent1);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  textarea {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+    min-height: 90px;
+  }
+
+  textarea:focus {
+    border-color: var(--accent1);
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.1);
+  }
+
+  textarea::placeholder { color: var(--text-muted); }
+
+  .submit-btn {
+    background: linear-gradient(135deg, #1f6feb, #388bfd);
+    border: none;
+    border-radius: 12px;
+    padding: 14px 22px;
+    color: white;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    min-width: 90px;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #388bfd, #58a6ff);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(56,139,253,0.35);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Result section */
+  .result-section {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-header .ai-badge {
+    background: linear-gradient(135deg, rgba(210,168,255,0.2), rgba(88,166,255,0.2));
+    border: 1px solid rgba(210,168,255,0.3);
+    color: var(--accent4);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+
+  .result-header .result-title {
+    font-size: 16px;
+    font-weight: 700;
+    flex: 1;
+  }
+
+  .result-content {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .result-content .highlight-chrom { color: var(--chrom); font-weight: 600; }
+  .result-content .highlight-dna   { color: var(--dna);   font-weight: 600; }
+  .result-content .highlight-gene  { color: var(--gene);  font-weight: 600; }
+
+  /* Quiz section */
+  .quiz-section {
+    background: var(--surface);
+    border: 1px solid rgba(210,168,255,0.25);
+    border-radius: 18px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+
+  .quiz-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent4);
+    margin-bottom: 12px;
+  }
+
+  .quiz-question {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .quiz-option {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    color: var(--text);
+    transition: all 0.15s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  .quiz-option:hover:not(:disabled) {
+    border-color: var(--accent4);
+    background: rgba(210,168,255,0.08);
+    color: var(--accent4);
+  }
+
+  .quiz-option.correct {
+    border-color: var(--gene);
+    background: rgba(63,185,80,0.12);
+    color: var(--gene);
+  }
+
+  .quiz-option.wrong {
+    border-color: var(--chrom);
+    background: rgba(247,129,102,0.1);
+    color: var(--chrom);
+    opacity: 0.7;
+  }
+
+  .quiz-feedback {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 12px 14px;
+    border-radius: 10px;
+    display: none;
+  }
+
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb {
+    background: rgba(63,185,80,0.1);
+    border: 1px solid rgba(63,185,80,0.25);
+    color: var(--gene);
+  }
+  .quiz-feedback.wrong-fb {
+    background: rgba(247,129,102,0.08);
+    border: 1px solid rgba(247,129,102,0.2);
+    color: var(--text-muted);
+  }
+
+  /* History */
+  .history-section {
+    margin-top: 36px;
+  }
+
+  .history-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .history-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .history-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .history-chip:hover {
+    border-color: var(--accent1);
+    color: var(--accent1);
+  }
+
+  /* Loading */
+  .loading-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .loading-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: bounce 1.2s infinite ease;
+  }
+
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Divider */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 32px 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .concepts { grid-template-columns: 1fr; }
+    .input-row { flex-direction: column; }
+    .submit-btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="badge">🧬 중학교 생명과학</div>
+    <h1>나만의 비유로 이해하는<br>유전 개념</h1>
+    <p>염색체, DNA, 유전자가 헷갈린다면?<br>내가 잘 아는 것에 비유해서 AI와 함께 개념을 정리해 보자!</p>
+  </header>
+
+  <!-- Concept selector -->
+  <div class="concepts" id="conceptCards">
+    <div class="concept-card chrom active" onclick="selectConcept('chrom')">
+      <div class="concept-icon">🧵</div>
+      <div class="concept-title">염색체</div>
+      <div class="concept-desc">DNA가 실처럼 감겨있는 구조물. 사람은 46개 보유</div>
+    </div>
+    <div class="concept-card dna" onclick="selectConcept('dna')">
+      <div class="concept-icon">🔬</div>
+      <div class="concept-title">DNA</div>
+      <div class="concept-desc">유전 정보가 담긴 이중나선 구조의 분자</div>
+    </div>
+    <div class="concept-card gene" onclick="selectConcept('gene')">
+      <div class="concept-icon">🔑</div>
+      <div class="concept-title">유전자</div>
+      <div class="concept-desc">특정 형질을 결정하는 DNA의 특정 구간</div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-section">
+    <h2>내 비유 아이디어 입력하기</h2>
+    <p class="hint" id="inputHint">어떤 것에 비유하고 싶은지 자유롭게 써보세요. 아래 예시를 눌러 시작해도 돼요!</p>
+
+    <div id="conceptLabel" class="selected-concept-label chrom">🧵 염색체</div>
+
+    <!-- Example chips -->
+    <div class="examples-row" id="examplesRow"></div>
+
+    <div class="input-row">
+      <textarea id="userInput" placeholder="예) 염색체는 책 같아요. DNA는 글씨고 유전자는 특정 문장인 것 같아요..." rows="3"></textarea>
+      <button class="submit-btn" id="submitBtn" onclick="generateAnalogy()">
+        <span id="btnText">✨ 설명 받기</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div id="resultArea"></div>
+
+  <!-- History -->
+  <div id="historySection" class="history-section" style="display:none">
+    <div class="history-title">📚 내가 만든 비유 모음</div>
+    <div class="history-chips" id="historyChips"></div>
+  </div>
+
+</div>
+
+<script>
+const CONCEPTS = {
+  chrom: {
+    label: '염색체',
+    icon: '🧵',
+    color: 'chrom',
+    examples: ['책 한 권', '도서관 선반', '실타래', '폴더', '악보집', '레고 박스'],
+    desc: '염색체(Chromosome)는 DNA가 단백질을 감아서 만들어진 구조입니다. 세포핵 안에 있어요.',
+  },
+  dna: {
+    label: 'DNA',
+    icon: '🔬',
+    color: 'dna',
+    examples: ['긴 문장들', '지도', '레시피 전체', '설계도', '음악 악보', '코드'],
+    desc: 'DNA(Deoxyribonucleic acid)는 A, T, G, C 네 가지 염기 서열로 이루어진 이중나선 분자입니다.',
+  },
+  gene: {
+    label: '유전자',
+    icon: '🔑',
+    color: 'gene',
+    examples: ['특정 레시피 하나', '하나의 단어', '특정 규칙', '스위치', '명령문 한 줄', '악보의 한 구절'],
+    desc: '유전자(Gene)는 특정 단백질을 만들거나 특정 형질을 결정하는 DNA의 특정 부분입니다.',
+  }
+};
+
+let selectedConcept = 'chrom';
+let history = [];
+function selectConcept(c) {
+  selectedConcept = c;
+  document.querySelectorAll('.concept-card').forEach(el => el.classList.remove('active'));
+  document.querySelector(`.concept-card.${c}`).classList.add('active');
+
+  const info = CONCEPTS[c];
+  const label = document.getElementById('conceptLabel');
+  label.textContent = `${info.icon} ${info.label}`;
+  label.className = `selected-concept-label ${c}`;
+
+  // Update examples
+  const row = document.getElementById('examplesRow');
+  row.innerHTML = info.examples.map(e =>
+    `<span class="example-chip" onclick="useExample('${e}')">${e}</span>`
+  ).join('');
+
+  document.getElementById('userInput').placeholder =
+    `예) ${info.label}는/은 ${info.examples[0]} 같아요. 왜냐하면...`;
+}
+
+function useExample(text) {
+  document.getElementById('userInput').value = text;
+  document.getElementById('userInput').focus();
+}
+
+async function generateAnalogy() {
+  const input = document.getElementById('userInput').value.trim();
+  if (!input) {
+    document.getElementById('userInput').focus();
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  const btnText = document.getElementById('btnText');
+  btn.disabled = true;
+  btnText.innerHTML = `<span class="loading-dots"><span></span><span></span><span></span></span>`;
+
+  const info = CONCEPTS[selectedConcept];
+
+  const systemPrompt = `당신은 한국 중학교 생명과학 수업을 돕는 친절한 과학 선생님 AI입니다.
+학생이 제시한 비유 아이디어를 바탕으로 "${info.label}" 개념을 쉽고 재미있게 설명해주세요.
+
+다음 형식으로 답변하세요 (반드시 이 형식 유지):
+
+[비유 분석]
+학생의 비유가 얼마나 적절한지 칭찬하며 설명 (2-3문장)
+
+[개념 연결]
+학생의 비유를 이용해 ${info.label}의 핵심 특징 3가지를 설명 (각 특징마다 💡 이모지 사용)
+
+[비유의 한계]
+이 비유로 설명하기 어려운 점 1가지 (솔직하게, 하지만 격려하는 어조로)
+
+[핵심 정리]
+${info.label}를 한 문장으로 정의
+
+답변은 중학생이 이해할 수 있는 쉬운 말로, 친근하고 격려하는 어조로 작성하세요. 총 300-400자 정도로 작성하세요.`;
+
+  const userPrompt = `나는 "${info.label}"을/를 "${input}"에 비유하고 싶어요. 이 비유를 바탕으로 ${info.label} 개념을 설명해주세요.`;
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '죄송해요, 응답을 받지 못했어요.';
+
+    // Generate quiz
+    const quizPrompt = `다음 설명을 읽은 중학생을 위한 객관식 문제 1개를 JSON으로 만들어주세요.
+설명: ${text}
+개념: ${info.label}
+
+JSON 형식 (다른 텍스트 없이 JSON만):
+{
+  "question": "문제 내용",
+  "options": ["선택지1", "선택지2", "선택지3", "선택지4"],
+  "answer": 0,
+  "explanation": "정답 해설 (1-2문장)"
+}
+answer는 정답 선택지의 인덱스(0부터 시작)`;
+
+    const quizResponse = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        messages: [{ role: 'user', content: quizPrompt }]
+      })
+    });
+
+    const quizData = await quizResponse.json();
+    let quiz = null;
+    try {
+      const raw = quizData.content?.[0]?.text || '';
+      const clean = raw.replace(/```json|```/g, '').trim();
+      quiz = JSON.parse(clean);
+    } catch(e) { quiz = null; }
+
+    // Add to history
+    history.unshift({ concept: selectedConcept, input, label: info.label, icon: info.icon });
+    if (history.length > 6) history.pop();
+    renderHistory();
+
+    renderResult(text, quiz, input, info);
+
+  } catch (err) {
+    document.getElementById('resultArea').innerHTML = `
+      <div class="result-card" style="border-color:rgba(247,129,102,0.4)">
+        <p style="color:var(--chrom)">⚠️ API 연결에 문제가 발생했어요. 잠시 후 다시 시도해주세요.</p>
+        <p style="color:var(--text-muted);font-size:13px;margin-top:8px">${err.message}</p>
+      </div>`;
+  }
+
+  btn.disabled = false;
+  btnText.textContent = '✨ 설명 받기';
+}
+
+function renderResult(text, quiz, input, info) {
+  const formatted = text
+    .replace(/\[비유 분석\]/g, `<strong style="color:var(--accent4)">📝 비유 분석</strong>`)
+    .replace(/\[개념 연결\]/g, `<strong style="color:var(--${info.color})">🔗 개념 연결</strong>`)
+    .replace(/\[비유의 한계\]/g, `<strong style="color:var(--text-muted)">⚠️ 비유의 한계</strong>`)
+    .replace(/\[핵심 정리\]/g, `<strong style="color:var(--accent2)">✅ 핵심 정리</strong>`);
+
+  let quizHtml = '';
+  if (quiz) {
+    const optionsHtml = quiz.options.map((o, i) =>
+      `<button class="quiz-option" onclick="checkAnswer(this, ${i}, ${quiz.answer}, '${quiz.explanation.replace(/'/g,"\\'")}', '${info.color}')">${String.fromCharCode(9312+i)} ${o}</button>`
+    ).join('');
+    quizHtml = `
+      <div class="quiz-section">
+        <div class="quiz-label">🎯 이해도 확인 퀴즈</div>
+        <div class="quiz-question">${quiz.question}</div>
+        <div class="quiz-options">${optionsHtml}</div>
+        <div class="quiz-feedback" id="quizFeedback"></div>
+      </div>`;
+  }
+
+  document.getElementById('resultArea').innerHTML = `
+    <div class="result-section">
+      <div class="result-card">
+        <div class="result-header">
+          <span style="font-size:20px">${info.icon}</span>
+          <div class="result-title">"${input}"으로 이해하는 ${info.label}</div>
+          <span class="ai-badge">AI 설명</span>
+        </div>
+        <div class="result-content">${formatted}</div>
+      </div>
+      ${quizHtml}
+    </div>`;
+
+  document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function checkAnswer(btn, idx, answer, explanation, color) {
+  const allBtns = btn.closest('.quiz-options').querySelectorAll('.quiz-option');
+  allBtns.forEach(b => b.disabled = true);
+
+  const feedback = document.getElementById('quizFeedback');
+
+  if (idx === answer) {
+    btn.classList.add('correct');
+    feedback.className = 'quiz-feedback show correct-fb';
+    feedback.innerHTML = `🎉 정답이에요! ${explanation}`;
+  } else {
+    btn.classList.add('wrong');
+    allBtns[answer].classList.add('correct');
+    feedback.className = 'quiz-feedback show wrong-fb';
+    feedback.innerHTML = `아쉽네요! 정답은 ④번이에요. ${explanation}`;
+    // Fix: show correct answer
+    const letters = ['①','②','③','④'];
+    feedback.innerHTML = `아쉽네요! 정답은 ${letters[answer]}번이에요. ${explanation}`;
+  }
+}
+
+function renderHistory() {
+  if (history.length === 0) return;
+  const section = document.getElementById('historySection');
+  const chips = document.getElementById('historyChips');
+  section.style.display = 'block';
+  chips.innerHTML = history.map((h,i) =>
+    `<span class="history-chip" onclick="reloadHistory(${i})">${h.icon} ${h.label}: "${h.input.substring(0,15)}${h.input.length>15?'...':''}"</span>`
+  ).join('');
+}
+
+function reloadHistory(i) {
+  const h = history[i];
+  selectConcept(h.concept);
+  document.getElementById('userInput').value = h.input;
+}
+
+// Init
+selectConcept('chrom');
+</script>
+</body>
+</html>
